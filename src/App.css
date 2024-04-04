@@ -1,0 +1,11 @@
+.App {
+  text-align: center;
+}
+
+.navlistItem{
+  margin: 1rem;
+}
+.navList{
+  width:"100vw";
+  max-width:"75rem"
+}
