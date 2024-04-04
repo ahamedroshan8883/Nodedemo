@@ -11,6 +11,7 @@ export default function Movies(){
            }
     let[data,setDatas] = useState([]);
     let[dataInputs,setDatainputs] = useState(InitialState);
+    let [Iseditable,setIseditable] = useState(false);
     const getData = async()=>{
         try{
             const response = await axios.get('http://localhost:8001/api/movies');
@@ -20,6 +21,10 @@ export default function Movies(){
 
         }
     }
+    const  getDataByIDpar = (item)=>{
+      setDatainputs(item);
+      setIseditable(true);
+    }
     useEffect(()=>{
         getData()
     },[])
@@ -28,14 +33,33 @@ export default function Movies(){
         setDatainputs({...dataInputs,[name]:value})
         console.log(dataInputs);
     }
+
     const handleSubmit = async(e,input)=>{
         e.preventDefault();
-        try{
+        // try{
+        //       const response = await axios.post('http://localhost:8001/api/addmovies',input)
+        //       console.log(response.data);
+        //       await getData()
+        //   }catch(error){
+        //       console.log(error);
+        //   }
+        if(Iseditable){
+          try{
+            const response = await axios.put('http://localhost:8001/api/movies',input)
+            console.log(response.data);
+            await getData()
+            setIseditable(false);
+        }catch(error){
+            console.log(error);
+        }
+        }else if(!Iseditable){
+          try{
             const response = await axios.post('http://localhost:8001/api/addmovies',input)
             console.log(response.data);
             await getData()
         }catch(error){
             console.log(error);
+        }
         }
     }
   return (<>
@@ -57,6 +81,6 @@ export default function Movies(){
     </Form>
     </div>
     {/* {JSON.stringify(data)} */}
-    <MoviesTable data={data} getData={getData}></MoviesTable>
+    <MoviesTable data={data} getData={getData} getDataByIDpar={getDataByIDpar}></MoviesTable>
   </>)
 };

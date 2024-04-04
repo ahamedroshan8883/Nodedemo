@@ -4,13 +4,22 @@ import { FaTrash } from "react-icons/fa6";
 import { FiEdit } from "react-icons/fi";
 import { Button } from "react-bootstrap";
 import axios from "axios";
-export default function MoviesTable({data,getData}){
+export default function MoviesTable({data,getData,getDataByIDpar}){
     console.log(data);
     const handelDelete = async(id)=>{
       try{
         const response = await axios.delete(`http://localhost:8001/api/movie/${id}`);
         console.log(response.data);
         getData();
+      }catch(error){
+        console.log(error);
+      }
+    }
+    const getDataById = async(movie)=>{
+      try{
+        const response = await axios.get(`http://localhost:8001/api/movies/${movie.id}`);
+        getDataByIDpar(response.data);
+        // console.log(response.data);
       }catch(error){
         console.log(error);
       }
@@ -31,7 +40,7 @@ export default function MoviesTable({data,getData}){
           <td>{item.moviename}</td>
           <td>{item.director}</td>
           <td><Button variant="outline-danger" onClick={()=>{handelDelete(item.id)}} style={{marginRight:"1rem"}}><FaTrash/></Button>
-          <Button variant="outline-primary"><FiEdit/></Button></td>
+          <Button variant="outline-primary" onClick={()=>getDataById(item)}><FiEdit/></Button></td>
         </tr>):<tr><td colSpan={3}>NO ITEMS FOUND</td></tr>}
       </tbody>
     </Table>
