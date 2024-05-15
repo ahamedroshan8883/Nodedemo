@@ -3,27 +3,35 @@ import React, { useEffect, useState } from "react"
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import MoviesTable from "./moviesTable";
+import moviesService from "../services/moviesService";
 
 export default function Movies(){
     let InitialState = {
         moviename:"",
-        director:""     
+        director:"",
+        description:"",
+        result:""
            }
-    let[data,setDatas] = useState([]);
+    let[movies,setMovies] = useState([]);
     let[dataInputs,setDatainputs] = useState(InitialState);
     let [Iseditable,setIseditable] = useState(false);
+    let[idforedit,Setidforedit] = useState('');
+
     const getData = async()=>{
         try{
-            const response = await axios.get('http://localhost:8001/api/movies');
-            setDatas(response.data);
+            const response = await moviesService.getAllMovies();
+            console.log(response.data);
+            setMovies(response.data.movies);
             setDatainputs(InitialState);
         }catch(error){
-
+          console.log(error);
         }
     }
-    const  getDataByIDpar = (item)=>{
+    const  getDataByIDpar = (item,input)=>{
       setDatainputs(item);
       setIseditable(true);
+      Setidforedit(input);
+      console.log(input);
     }
     useEffect(()=>{
         getData()
@@ -31,7 +39,7 @@ export default function Movies(){
     const handlechanges = (e)=>{
         const{name,value} = e.target;
         setDatainputs({...dataInputs,[name]:value})
-        console.log(dataInputs);
+        // console.log(dataInputs);
     }
 
     const handleSubmit = async(e,input)=>{
@@ -43,24 +51,25 @@ export default function Movies(){
         //   }catch(error){
         //       console.log(error);
         //   }
-        if(Iseditable){
+        // if(Iseditable){
+        //   try{
+        //     const response = await axios.put(`http://localhost:8080/movies/${idforedit}`,input)
+        //     console.log(response.data);
+        //     await getData()
+        //     setIseditable(false);
+        // }catch(error){
+        //     console.log(error);
+        // }
+        // }else if(!Iseditable){
           try{
-            const response = await axios.put('http://localhost:8001/api/movies',input)
+            console.log(input);
+            const response = await moviesService.AddMovie(input)
             console.log(response.data);
             await getData()
-            setIseditable(false);
         }catch(error){
             console.log(error);
         }
-        }else if(!Iseditable){
-          try{
-            const response = await axios.post('http://localhost:8001/api/addmovies',input)
-            console.log(response.data);
-            await getData()
-        }catch(error){
-            console.log(error);
-        }
-        }
+        // }
     }
   return (<>
     <h1>movies</h1>
@@ -74,13 +83,27 @@ export default function Movies(){
         <Form.Label>Director</Form.Label>
         <Form.Control type="text" placeholder="Enter director name" value={dataInputs.director} name="director" onChange={(e)=>handlechanges(e)}/>
       </Form.Group>
-      <div className="butbox" style={{display:"flex",flexDirection:"row",justifyContent:"flex-end"}}>
+      <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1" >
+        <Form.Label>Example textarea</Form.Label>
+        <Form.Control as="textarea" rows={3} placeholder="Describe about movie" name="description" value={dataInputs.description} onChange={(e)=>handlechanges(e)}/>
+      </Form.Group>
+      <Form.Group  controlId="formGridState">
+          <Form.Label>Result</Form.Label>
+          <Form.Select  name="result" onChange={(e)=>handlechanges(e)} value={dataInputs.result}>
+            <option>Flop</option>
+            <option>Average</option>
+            <option>Hit</option>
+            <option>Super Hit</option>
+            <option>Blockbuster</option>
+          </Form.Select>
+        </Form.Group>
+      <div className="butbox mb-3" style={{display:"flex",flexDirection:"row",justifyContent:"flex-end",margin:"1rem"}}>
         <Button  variant="primary" type="submit" className="btn" style={{marginRight:"1rem"}}>Submit</Button>
         <Button variant="danger" className="btn" type="reset" onClick={()=>setDatainputs({moviename:"",director:""})} >Reset</Button>
       </div>
     </Form>
     </div>
-    {/* {JSON.stringify(data)} */}
-    <MoviesTable data={data} getData={getData} getDataByIDpar={getDataByIDpar}></MoviesTable>
+    {/* {JSON.stringify(dataInputs)} */}
+    <MoviesTable movies={movies} getData={getData} getDataByIDpar={getDataByIDpar}></MoviesTable>
   </>)
 };

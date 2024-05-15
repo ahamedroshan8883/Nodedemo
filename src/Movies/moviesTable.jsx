@@ -1,14 +1,16 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import Table from 'react-bootstrap/Table';
 import { FaTrash } from "react-icons/fa6";
 import { FiEdit } from "react-icons/fi";
 import { Button } from "react-bootstrap";
 import axios from "axios";
-export default function MoviesTable({data,getData,getDataByIDpar}){
-    console.log(data);
+import moviesService from "../services/moviesService";
+
+export default function MoviesTable({movies,getData,getDataByIDpar}){
+  
     const handelDelete = async(id)=>{
       try{
-        const response = await axios.delete(`http://localhost:8001/api/movie/${id}`);
+        const response = await moviesService.DeleteMovie(id);
         console.log(response.data);
         getData();
       }catch(error){
@@ -16,14 +18,11 @@ export default function MoviesTable({data,getData,getDataByIDpar}){
       }
     }
     const getDataById = async(movie)=>{
-      try{
-        const response = await axios.get(`http://localhost:8001/api/movies/${movie.id}`);
-        getDataByIDpar(response.data);
+      console.log(movie);
+        getDataByIDpar(movie,movie._id);
         // console.log(response.data);
-      }catch(error){
-        console.log(error);
-      }
     }
+    
   return (<>
     <h1>movies</h1>
     <div className="table" style={{margin:"0 auto",maxWidth:"60rem"}}>
@@ -32,16 +31,20 @@ export default function MoviesTable({data,getData,getDataByIDpar}){
         <tr>
           <th>Movie name</th>
           <th>Director</th>
+          <th>Description</th>
+          <th>Result</th>
           <th>Action</th>
         </tr>
       </thead>
-      <tbody>
-        {data.length >1 ? data.map(item=><tr>
+      <tbody>{movies.length >=1 ? movies.map(item=><tr key={item._id}>
           <td>{item.moviename}</td>
           <td>{item.director}</td>
-          <td><Button variant="outline-danger" onClick={()=>{handelDelete(item.id)}} style={{marginRight:"1rem"}}><FaTrash/></Button>
+          <td>{item.description}</td>
+          <td>{item.result}</td>
+          <td>
+          <Button variant="outline-danger" onClick={()=>{handelDelete(item._id)}} style={{marginRight:"1rem"}}><FaTrash/></Button>
           <Button variant="outline-primary" onClick={()=>getDataById(item)}><FiEdit/></Button></td>
-        </tr>):<tr><td colSpan={3}>NO ITEMS FOUND</td></tr>}
+        </tr>):<tr ><td  colSpan={3}>NO ITEMS FOUNDED</td></tr>}
       </tbody>
     </Table>
     </div>
